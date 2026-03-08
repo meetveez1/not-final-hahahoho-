@@ -15,7 +15,7 @@ class SchoolApp extends StatefulWidget {
 class _SchoolAppState extends State<SchoolApp> {
   ThemeMode _themeMode = ThemeMode.dark;
 
-  void _changeTheme(ThemeMode mode) {
+  void _onThemeChanged(ThemeMode mode) {
     setState(() {
       _themeMode = mode;
     });
@@ -27,47 +27,47 @@ class _SchoolAppState extends State<SchoolApp> {
       debugShowCheckedModeBanner: false,
       title: 'Школьное приложение',
       themeMode: _themeMode,
-      theme: AppThemes.light,
-      darkTheme: AppThemes.dark,
-      home: HomeScreen(
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      home: AppShell(
         themeMode: _themeMode,
-        onThemeChanged: _changeTheme,
+        onThemeChanged: _onThemeChanged,
       ),
     );
   }
 }
 
-class AppThemes {
-  static const LinearGradient cyanGreenGradient = LinearGradient(
+class AppTheme {
+  static const Color midnight = Color(0xFF0B0B0E);
+  static const Color darkHeader = Color(0xFF25272E);
+
+  static const LinearGradient cyanGreen = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF13C8E8), Color(0xFF09CC63)],
+    colors: [Color(0xFF17C7E7), Color(0xFF09CB67)],
   );
 
   static ThemeData get light {
     return ThemeData(
       brightness: Brightness.light,
-      scaffoldBackgroundColor: const Color(0xFFF4F5F8),
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF0BCF63),
-        brightness: Brightness.light,
-      ),
+      scaffoldBackgroundColor: const Color(0xFFF4F5F9),
       appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFFE4E6EB),
+        foregroundColor: Color(0xFF10203F),
         elevation: 0,
-        backgroundColor: Color(0xFFE5E7EC),
-        foregroundColor: Color(0xFF11213D),
       ),
       cardTheme: CardTheme(
         color: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       extensions: const [
         AppPalette(
-          background: Color(0xFFF4F5F8),
-          topBar: Color(0xFFE5E7EC),
-          headline: Color(0xFF0A1F3D),
-          body: Color(0xFF3C4E68),
+          background: Color(0xFFF4F5F9),
+          title: Color(0xFF051737),
+          body: Color(0xFF495B73),
+          header: Color(0xFFE4E6EB),
+          tile: Colors.white,
         ),
       ],
     );
@@ -76,27 +76,24 @@ class AppThemes {
   static ThemeData get dark {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: const Color(0xFF0B0B0E),
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF0BCF63),
-        brightness: Brightness.dark,
-      ),
+      scaffoldBackgroundColor: midnight,
       appBarTheme: const AppBarTheme(
-        elevation: 0,
-        backgroundColor: Color(0xFF23252A),
+        backgroundColor: darkHeader,
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
       cardTheme: CardTheme(
-        color: const Color(0xFF151820),
+        color: const Color(0xFF141821),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       extensions: const [
         AppPalette(
-          background: Color(0xFF0B0B0E),
-          topBar: Color(0xFF23252A),
-          headline: Colors.white,
-          body: Color(0xFFCBD3E4),
+          background: midnight,
+          title: Colors.white,
+          body: Color(0xFFD0D8E8),
+          header: darkHeader,
+          tile: Color(0xFF141821),
         ),
       ],
     );
@@ -107,48 +104,53 @@ class AppThemes {
 class AppPalette extends ThemeExtension<AppPalette> {
   const AppPalette({
     required this.background,
-    required this.topBar,
-    required this.headline,
+    required this.title,
     required this.body,
+    required this.header,
+    required this.tile,
   });
 
   final Color background;
-  final Color topBar;
-  final Color headline;
+  final Color title;
   final Color body;
+  final Color header;
+  final Color tile;
 
   @override
-  ThemeExtension<AppPalette> copyWith({
+  AppPalette copyWith({
     Color? background,
-    Color? topBar,
-    Color? headline,
+    Color? title,
     Color? body,
+    Color? header,
+    Color? tile,
   }) {
     return AppPalette(
       background: background ?? this.background,
-      topBar: topBar ?? this.topBar,
-      headline: headline ?? this.headline,
+      title: title ?? this.title,
       body: body ?? this.body,
+      header: header ?? this.header,
+      tile: tile ?? this.tile,
     );
   }
 
   @override
-  ThemeExtension<AppPalette> lerp(covariant ThemeExtension<AppPalette>? other, double t) {
+  AppPalette lerp(ThemeExtension<AppPalette>? other, double t) {
     if (other is! AppPalette) {
       return this;
     }
 
     return AppPalette(
       background: Color.lerp(background, other.background, t)!,
-      topBar: Color.lerp(topBar, other.topBar, t)!,
-      headline: Color.lerp(headline, other.headline, t)!,
+      title: Color.lerp(title, other.title, t)!,
       body: Color.lerp(body, other.body, t)!,
+      header: Color.lerp(header, other.header, t)!,
+      tile: Color.lerp(tile, other.tile, t)!,
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({
+class AppShell extends StatefulWidget {
+  const AppShell({
     super.key,
     required this.themeMode,
     required this.onThemeChanged,
@@ -158,39 +160,36 @@ class HomeScreen extends StatefulWidget {
   final ValueChanged<ThemeMode> onThemeChanged;
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<AppShell> createState() => _AppShellState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+class _AppShellState extends State<AppShell> {
+  final PageController _controller = PageController();
+  int _page = 0;
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _goToPage(int index) {
+  void _changePage(int index) {
     Navigator.of(context).maybePop();
-    _pageController.animateToPage(
+    _controller.animateToPage(
       index,
-      duration: const Duration(milliseconds: 280),
+      duration: const Duration(milliseconds: 250),
       curve: Curves.easeOut,
     );
   }
 
-  void _onPointerSignal(PointerSignalEvent event) {
-    if (event is! PointerScrollEvent) {
-      return;
-    }
+  void _handleWheel(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent) return;
 
-    final delta = event.scrollDelta.dy;
-    if (delta > 0 && _currentPage < 3) {
-      _goToPage(_currentPage + 1);
-    } else if (delta < 0 && _currentPage > 0) {
-      _goToPage(_currentPage - 1);
+    if (event.scrollDelta.dy > 0 && _page < 3) {
+      _changePage(_page + 1);
+    } else if (event.scrollDelta.dy < 0 && _page > 0) {
+      _changePage(_page - 1);
     }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -200,30 +199,27 @@ class _HomeScreenState extends State<HomeScreen> {
         titleSpacing: 8,
         title: const Text(
           'Школьное\nприложение',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 12),
+            padding: const EdgeInsets.only(right: 14),
             child: DecoratedBox(
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: AppThemes.cyanGreenGradient,
+                gradient: AppTheme.cyanGreen,
               ),
               child: IconButton(
-                icon: const Icon(Icons.person_outline_rounded, color: Colors.white),
                 onPressed: () {},
+                icon: const Icon(Icons.person_outline_rounded, color: Colors.white),
               ),
             ),
           ),
         ],
       ),
-      drawer: SideMenu(
-        selectedIndex: _currentPage,
-        onTapItem: _goToPage,
-      ),
+      drawer: SchoolMenu(currentPage: _page, onSelectPage: _changePage),
       body: Listener(
-        onPointerSignal: _onPointerSignal,
+        onPointerSignal: _handleWheel,
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(
             scrollbars: false,
@@ -231,21 +227,20 @@ class _HomeScreenState extends State<HomeScreen> {
               PointerDeviceKind.touch,
               PointerDeviceKind.mouse,
               PointerDeviceKind.trackpad,
-              PointerDeviceKind.stylus,
             },
           ),
           child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
+            controller: _controller,
+            onPageChanged: (value) {
               setState(() {
-                _currentPage = index;
+                _page = value;
               });
             },
             children: [
-              const NewsPage(),
-              const SchedulePage(),
-              const InfoPage(),
-              SettingsPage(
+              const NewsScreen(),
+              const ScheduleScreen(),
+              const InfoScreen(),
+              SettingsScreen(
                 themeMode: widget.themeMode,
                 onThemeChanged: widget.onThemeChanged,
               ),
@@ -257,21 +252,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class SideMenu extends StatelessWidget {
-  const SideMenu({
+class SchoolMenu extends StatelessWidget {
+  const SchoolMenu({
     super.key,
-    required this.selectedIndex,
-    required this.onTapItem,
+    required this.currentPage,
+    required this.onSelectPage,
   });
 
-  final int selectedIndex;
-  final ValueChanged<int> onTapItem;
+  final int currentPage;
+  final ValueChanged<int> onSelectPage;
 
   @override
   Widget build(BuildContext context) {
     final items = const [
       (Icons.home_outlined, 'Главное'),
-      (Icons.calendar_today_outlined, 'Расписание'),
+      (Icons.calendar_month_outlined, 'Расписание'),
       (Icons.info_outline_rounded, 'Доп информация'),
       (Icons.settings_outlined, 'Настройки'),
     ];
@@ -280,19 +275,20 @@ class SideMenu extends StatelessWidget {
       width: MediaQuery.of(context).size.width * 0.72,
       backgroundColor: Colors.transparent,
       child: DecoratedBox(
-        decoration: const BoxDecoration(gradient: AppThemes.cyanGreenGradient),
+        decoration: const BoxDecoration(gradient: AppTheme.cyanGreen),
         child: SafeArea(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
+                padding: const EdgeInsets.fromLTRB(16, 12, 12, 10),
                 child: Row(
                   children: [
                     const Text(
                       'Меню',
                       style: TextStyle(
-                        fontSize: 34,
                         color: Colors.white,
+                        fontSize: 34,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -304,28 +300,28 @@ class SideMenu extends StatelessWidget {
                   ],
                 ),
               ),
-              const Divider(color: Colors.white30, height: 1),
+              const Divider(height: 1, color: Colors.white30),
               const SizedBox(height: 8),
               for (var i = 0; i < items.length; i++)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   child: ListTile(
-                    onTap: () => onTapItem(i),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    tileColor: selectedIndex == i ? Colors.white : Colors.transparent,
+                    tileColor: currentPage == i ? Colors.white : Colors.transparent,
                     leading: Icon(
                       items[i].$1,
-                      color: selectedIndex == i ? const Color(0xFF039CCB) : Colors.white,
+                      color: currentPage == i ? const Color(0xFF019EC6) : Colors.white,
                     ),
                     title: Text(
                       items[i].$2,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        color: selectedIndex == i ? const Color(0xFF0595C2) : Colors.white,
+                        color: currentPage == i ? const Color(0xFF018CB3) : Colors.white,
                       ),
                     ),
+                    onTap: () => onSelectPage(i),
                   ),
                 ),
             ],
@@ -336,8 +332,8 @@ class SideMenu extends StatelessWidget {
   }
 }
 
-class NewsPage extends StatelessWidget {
-  const NewsPage({super.key});
+class NewsScreen extends StatelessWidget {
+  const NewsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -349,48 +345,45 @@ class NewsPage extends StatelessWidget {
         Text(
           'Новости школы',
           style: TextStyle(
-            color: palette.headline,
-            fontSize: 38,
+            color: palette.title,
+            fontSize: 40,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           'Все актуальные события и объявления',
-          style: TextStyle(
-            color: palette.body,
-            fontSize: 20,
-          ),
+          style: TextStyle(color: palette.body, fontSize: 20),
         ),
         const SizedBox(height: 10),
-        const NewsItemCard(
+        const NewsCard(
           date: '1 сентября 2026',
           title: 'Начало нового учебного года',
-          body:
+          text:
               '1 сентября наша школа открыла двери для всех учеников. Торжественная линейка прошла успешно, все ученики получили учебные материалы.',
         ),
-        const NewsItemCard(
+        const NewsCard(
           date: '14 февраля 2026',
           title: 'Спортивный турнир между классами',
-          body:
-              'Команды 8-11 классов приняли участие в школьном турнире. Финальные соревнования пройдут в эту пятницу.',
+          text:
+              'Команды 8–11 классов приняли участие в школьном турнире. Финальные соревнования пройдут в эту пятницу.',
         ),
       ],
     );
   }
 }
 
-class NewsItemCard extends StatelessWidget {
-  const NewsItemCard({
+class NewsCard extends StatelessWidget {
+  const NewsCard({
     super.key,
     required this.date,
     required this.title,
-    required this.body,
+    required this.text,
   });
 
   final String date;
   final String title;
-  final String body;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -399,8 +392,8 @@ class NewsItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
-        gradient: AppThemes.cyanGreenGradient,
-        borderRadius: BorderRadius.circular(16),
+        gradient: AppTheme.cyanGreen,
+        borderRadius: BorderRadius.circular(18),
       ),
       padding: const EdgeInsets.all(2),
       child: Card(
@@ -413,34 +406,35 @@ class NewsItemCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  const Icon(Icons.schedule, size: 16),
+                  Icon(Icons.schedule, size: 16, color: palette.body),
                   const SizedBox(width: 4),
                   Text(date, style: TextStyle(color: palette.body)),
                 ],
               ),
-              const SizedBox(height: 100),
+              const SizedBox(height: 96),
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 18,
+                  color: palette.title,
+                  fontSize: 34,
                   fontWeight: FontWeight.w800,
-                  color: palette.headline,
+                  height: 1.1,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(
-                body,
-                style: TextStyle(color: palette.body, height: 1.35),
+                text,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: palette.body, height: 1.35),
               ),
-              const Divider(height: 22),
+              const Divider(height: 24),
               Row(
                 children: [
                   Icon(Icons.favorite_border, color: palette.body),
                   const SizedBox(width: 6),
                   Text('124', style: TextStyle(color: palette.body)),
-                  const SizedBox(width: 22),
+                  const SizedBox(width: 20),
                   Icon(Icons.chat_bubble_outline, color: palette.body),
                   const SizedBox(width: 6),
                   Text('18', style: TextStyle(color: palette.body)),
@@ -454,8 +448,8 @@ class NewsItemCard extends StatelessWidget {
   }
 }
 
-class SchedulePage extends StatelessWidget {
-  const SchedulePage({super.key});
+class ScheduleScreen extends StatelessWidget {
+  const ScheduleScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -467,37 +461,37 @@ class SchedulePage extends StatelessWidget {
         Text(
           'Расписание уроков',
           style: TextStyle(
-            color: palette.headline,
+            color: palette.title,
             fontSize: 42,
             fontWeight: FontWeight.w800,
           ),
         ),
-        const SizedBox(height: 4),
-        Text('Класс 9Б', style: TextStyle(color: palette.body, fontSize: 25)),
-        const SizedBox(height: 16),
-        const _DayTabs(),
+        const SizedBox(height: 6),
+        Text('Класс 9Б', style: TextStyle(color: palette.body, fontSize: 24)),
         const SizedBox(height: 14),
-        const LessonCard(
+        const _DayChips(),
+        const SizedBox(height: 14),
+        const LessonTile(
           subject: 'Математика',
           teacher: 'Иванова А.П.',
           time: '08:30 - 09:15',
           room: 'Кабинет 204',
-          lessonNumber: 1,
+          number: 1,
         ),
-        const LessonCard(
+        const LessonTile(
           subject: 'Русский язык',
           teacher: 'Петрова С.В.',
           time: '09:25 - 10:10',
           room: 'Кабинет 301',
-          lessonNumber: 2,
+          number: 2,
         ),
       ],
     );
   }
 }
 
-class _DayTabs extends StatelessWidget {
-  const _DayTabs();
+class _DayChips extends StatelessWidget {
+  const _DayChips();
 
   @override
   Widget build(BuildContext context) {
@@ -511,7 +505,7 @@ class _DayTabs extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                gradient: i == 0 ? AppThemes.cyanGreenGradient : null,
+                gradient: i == 0 ? AppTheme.cyanGreen : null,
                 color: i == 0 ? null : Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: Colors.white24),
@@ -531,27 +525,28 @@ class _DayTabs extends StatelessWidget {
   }
 }
 
-class LessonCard extends StatelessWidget {
-  const LessonCard({
+class LessonTile extends StatelessWidget {
+  const LessonTile({
     super.key,
     required this.subject,
     required this.teacher,
     required this.time,
     required this.room,
-    required this.lessonNumber,
+    required this.number,
   });
 
   final String subject;
   final String teacher;
   final String time;
   final String room;
-  final int lessonNumber;
+  final int number;
 
   @override
   Widget build(BuildContext context) {
     final palette = Theme.of(context).extension<AppPalette>()!;
 
     return Card(
+      margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -562,21 +557,21 @@ class LessonCard extends StatelessWidget {
                   child: Text(
                     subject,
                     style: TextStyle(
-                      color: palette.headline,
-                      fontSize: 18,
+                      color: palette.title,
+                      fontSize: 36,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
                 Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0x2622C9E8),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x4436D2EF)),
-                  ),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: const Color(0x2222C9E7),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0x5536D3EE)),
+                  ),
                   child: Text(
-                    'Урок $lessonNumber',
+                    'Урок $number',
                     style: const TextStyle(
                       color: Color(0xFF0EB7D9),
                       fontWeight: FontWeight.w700,
@@ -586,11 +581,7 @@ class LessonCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Row(
-              children: [
-                Text(teacher, style: TextStyle(color: palette.body)),
-              ],
-            ),
+            Row(children: [Text(teacher, style: TextStyle(color: palette.body))]),
             const Divider(height: 22),
             Row(
               children: [
@@ -610,8 +601,8 @@ class LessonCard extends StatelessWidget {
   }
 }
 
-class InfoPage extends StatelessWidget {
-  const InfoPage({super.key});
+class InfoScreen extends StatelessWidget {
+  const InfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -623,8 +614,8 @@ class InfoPage extends StatelessWidget {
         Text(
           'Дополнительная информация',
           style: TextStyle(
-            color: palette.headline,
-            fontSize: 36,
+            color: palette.title,
+            fontSize: 34,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -633,7 +624,7 @@ class InfoPage extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'Здесь можно разместить объявления школы, контакты и правила для учеников.',
+              'Здесь можно разместить контакты школы, правила посещения и важные объявления.',
               style: TextStyle(color: palette.body),
             ),
           ),
@@ -643,8 +634,8 @@ class InfoPage extends StatelessWidget {
   }
 }
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({
     super.key,
     required this.themeMode,
     required this.onThemeChanged,
@@ -664,7 +655,7 @@ class SettingsPage extends StatelessWidget {
         Text(
           'Тема оформления',
           style: TextStyle(
-            color: palette.headline,
+            color: palette.title,
             fontSize: 40,
             fontWeight: FontWeight.w800,
           ),
@@ -675,17 +666,17 @@ class SettingsPage extends StatelessWidget {
           style: TextStyle(color: palette.body, fontSize: 20),
         ),
         const SizedBox(height: 16),
-        ThemeTile(
+        ThemeOption(
+          icon: Icons.light_mode_outlined,
           title: 'Светлая тема',
           subtitle: 'Классический светлый дизайн',
-          icon: Icons.light_mode_outlined,
           selected: !isDark,
           onTap: () => onThemeChanged(ThemeMode.light),
         ),
-        ThemeTile(
+        ThemeOption(
+          icon: Icons.nightlight_round,
           title: 'Тёмная тема',
           subtitle: 'Полночный мрак для комфорта',
-          icon: Icons.nightlight_round,
           selected: isDark,
           onTap: () => onThemeChanged(ThemeMode.dark),
         ),
@@ -693,18 +684,18 @@ class SettingsPage extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0x604FDDED)),
+            border: Border.all(color: const Color(0x708EE2F1)),
             gradient: LinearGradient(
               colors: [
-                const Color(0xFF13C8E8).withOpacity(0.15),
-                const Color(0xFF09CC63).withOpacity(0.15),
+                const Color(0xFF17C7E7).withOpacity(0.15),
+                const Color(0xFF09CB67).withOpacity(0.15),
               ],
             ),
           ),
           padding: const EdgeInsets.all(14),
           child: Text(
-            'Тёмная тема с полночным мраком (#0B0B0E) помогает снизить нагрузку на глаза при использовании приложения в тёмное время суток.',
-            style: TextStyle(color: palette.headline, height: 1.4),
+            'Тёмная тема с полночным мраком (#0B0B0E) помогает снизить нагрузку на глаза при использовании приложения вечером и ночью.',
+            style: TextStyle(color: palette.title, height: 1.4),
           ),
         ),
       ],
@@ -712,19 +703,19 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-class ThemeTile extends StatelessWidget {
-  const ThemeTile({
+class ThemeOption extends StatelessWidget {
+  const ThemeOption({
     super.key,
+    required this.icon,
     required this.title,
     required this.subtitle,
-    required this.icon,
     required this.selected,
     required this.onTap,
   });
 
+  final IconData icon;
   final String title;
   final String subtitle;
-  final IconData icon;
   final bool selected;
   final VoidCallback onTap;
 
@@ -734,20 +725,9 @@ class ThemeTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        gradient: selected ? AppThemes.cyanGreenGradient : null,
+        gradient: selected ? AppTheme.cyanGreen : null,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: selected ? Colors.transparent : Colors.white24,
-        ),
-        boxShadow: selected
-            ? const [
-                BoxShadow(
-                  color: Color(0x4413C8E8),
-                  blurRadius: 12,
-                  offset: Offset(0, 4),
-                ),
-              ]
-            : null,
+        border: Border.all(color: selected ? Colors.transparent : Colors.white24),
       ),
       child: Material(
         color: Theme.of(context).cardTheme.color,
@@ -759,16 +739,11 @@ class ThemeTile extends StatelessWidget {
             height: 56,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: selected
-                  ? const Color(0x1913C8E8)
-                  : Theme.of(context).scaffoldBackgroundColor,
+              color: selected ? const Color(0x1916C7E7) : Theme.of(context).scaffoldBackgroundColor,
             ),
             child: Icon(icon),
           ),
-          title: Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
+          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
           subtitle: Text(subtitle),
           trailing: selected
               ? Container(
@@ -776,11 +751,11 @@ class ThemeTile extends StatelessWidget {
                   height: 26,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: AppThemes.cyanGreenGradient,
+                    gradient: AppTheme.cyanGreen,
                   ),
                   child: const Icon(Icons.check, size: 17, color: Colors.white),
                 )
-              : null,
+              : const SizedBox.shrink(),
         ),
       ),
     );
